@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<base target="_top">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0b5d4b">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+  :root{
+    --bg:#f2f5f7; --card:#fff; --ink:#13202c; --sub:#5a6977; --line:#e1e7ed;
+    --brand:#0b5d4b; --brand-2:#0f7a62; --brand-soft:#e5f3ee;
+    --top:#0e8a5f; --good:#1f6fb2; --mid:#b86e00; --low:#c62828;
+    --top-soft:#e3f5ec; --good-soft:#e5f0fa; --mid-soft:#fdf2e0; --low-soft:#fdeaea;
+    --tap:56px; --r:16px;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:Pretendard,-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR","Malgun Gothic",sans-serif;
+    font-size:16px;line-height:1.5;word-break:keep-all}
+  button{font-family:inherit;cursor:pointer}
+  h1,h2,h3,p{margin:0}
+
+  /* 상단 바 */
+  .topbar{position:sticky;top:0;z-index:20;background:var(--brand);color:#fff;
+    padding:calc(12px + env(safe-area-inset-top)) 16px 12px;display:flex;align-items:center;gap:10px;min-height:60px}
+  .topbar h1{font-size:20px;font-weight:800;letter-spacing:-.3px;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .topbar .back{display:none;border:0;background:rgba(255,255,255,.16);color:#fff;font-size:22px;
+    width:48px;height:48px;border-radius:14px;flex:none}
+  body.sub .topbar .back{display:block}
+  .logo{width:38px;height:38px;border-radius:12px;background:#fff;display:grid;place-items:center;font-size:22px;flex:none;box-shadow:0 2px 6px rgba(0,0,0,.15)}
+  body.sub .logo{display:none}
+
+  main{max-width:640px;margin:0 auto;padding:14px 14px calc(120px + env(safe-area-inset-bottom))}
+  .view{display:none}
+  .view.active{display:block;animation:fade .18s ease}
+  @keyframes fade{from{opacity:.4;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+  /* 하단 탭 */
+  .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;background:#fff;border-top:1px solid var(--line);
+    display:flex;padding-bottom:env(safe-area-inset-bottom)}
+  .tabbar button{flex:1;min-height:68px;border:0;background:none;color:var(--sub);font-size:14px;font-weight:600;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;position:relative}
+  .tabbar button .ico{font-size:24px;line-height:1}
+  .tabbar button.on{color:var(--brand)}
+  .tabbar .count{position:absolute;top:8px;left:calc(50% + 8px);background:var(--low);color:#fff;border-radius:10px;
+    font-size:12px;min-width:20px;height:20px;padding:0 5px;display:none;align-items:center;justify-content:center}
+  body.sub .tabbar{display:none}
+
+  /* 버튼 */
+  .btn{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;min-height:var(--tap);
+    padding:0 18px;border-radius:14px;border:0;font-size:17px;font-weight:700;letter-spacing:-.2px}
+  .btn:active{transform:scale(.98)}
+  .btn:disabled{opacity:.5}
+  .btn-primary{background:var(--brand);color:#fff}
+  .btn-outline{background:#fff;color:var(--brand);border:2px solid var(--brand)}
+  .btn-outline.on{background:var(--brand-soft)}
+  .btn-ghost{background:#e9eef2;color:var(--ink)}
+  .row{display:flex;gap:10px}
+  .row > *{flex:1}
+
+  /* 입력 */
+  label.f{display:block;font-weight:700;font-size:16px;margin:18px 0 8px}
+  label.f small{font-weight:500;color:var(--sub);margin-left:4px}
+  input[type=text],input[type=tel],input[type=date],input[type=search],select,textarea{
+    width:100%;min-height:var(--tap);font-size:17px;padding:12px 14px;border:1.5px solid var(--line);
+    border-radius:14px;background:#fff;color:var(--ink);font-family:inherit;appearance:none;-webkit-appearance:none}
+  select{background-image:linear-gradient(45deg,transparent 50%,#5a6977 50%),linear-gradient(135deg,#5a6977 50%,transparent 50%);
+    background-position:calc(100% - 22px) 50%,calc(100% - 16px) 50%;background-size:6px 6px;background-repeat:no-repeat;padding-right:40px}
+  textarea{min-height:130px;resize:vertical}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px rgba(11,93,75,.15)}
+  .hint{font-size:14px;color:var(--sub);margin-top:6px}
+
+  .seg{display:grid;grid-template-columns:repeat(auto-fit,minmax(70px,1fr));gap:8px}
+  .seg button{min-height:var(--tap);border:1.5px solid var(--line);background:#fff;border-radius:14px;font-size:16px;font-weight:700;color:var(--ink)}
+  .seg button.on{border-color:var(--brand);background:var(--brand);color:#fff}
+  .seg.big button{min-height:78px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+  .seg.big button small{font-weight:500;font-size:13px;opacity:.85}
+
+  .check{display:flex;align-items:center;gap:12px;min-height:var(--tap);padding:12px 14px;background:#fff;
+    border:1.5px solid var(--line);border-radius:14px;margin-top:12px;font-size:16px;font-weight:600}
+  .check input{width:26px;height:26px;accent-color:var(--brand);flex:none}
+  .check.warn{border-color:#f3c3c3;background:#fff8f8}
+
+  /* 카드 */
+  .card{background:var(--card);border-radius:var(--r);padding:16px;margin-bottom:12px;box-shadow:0 1px 2px rgba(16,32,44,.06)}
+  .card h2{font-size:18px;margin-bottom:10px}
+  .muted{color:var(--sub)}
+
+  /* 검색/필터 */
+  .search{position:relative}
+  .search input{padding-left:46px;font-size:17px}
+  .search .ico{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:20px;opacity:.6}
+  .filter-toggle{margin-top:10px}
+  .filters{display:none;margin-top:4px}
+  .filters.open{display:block}
+  .chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px;scrollbar-width:none}
+  .chips::-webkit-scrollbar{display:none}
+  .chips.sido{margin-top:12px}
+  .chip small{font-weight:600;opacity:.6;margin-left:3px}
+  .chip{flex:none;min-height:44px;padding:0 16px;border-radius:22px;border:1.5px solid var(--line);background:#fff;
+    font-size:15px;font-weight:700;color:var(--ink)}
+  .chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+  .result-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:16px 2px 10px}
+  .result-bar b{font-size:17px}
+  .result-bar select{width:auto;min-height:44px;font-size:15px;padding:6px 36px 6px 12px}
+
+  /* 중개사 카드 */
+  .agent-top{display:flex;gap:14px;align-items:flex-start;cursor:pointer}
+  .agent-main{flex:1;min-width:0}
+  .agent-main h3{font-size:19px;font-weight:800;letter-spacing:-.3px}
+  .agent-main .office{font-size:15px;color:var(--sub);font-weight:600}
+  .meta{font-size:15px;color:var(--sub);margin-top:2px}
+  .meta b{color:var(--ink)}
+  .badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .badge{font-size:13px;font-weight:700;padding:4px 9px;border-radius:8px;background:#eef2f5;color:var(--sub)}
+  .badge.ok{background:var(--top-soft);color:var(--top)}
+  .badge.bad{background:var(--low-soft);color:var(--low)}
+  .badge.spec{background:#f3f0fa;color:#5b3fa0}
+  .card-actions{display:flex;gap:10px;margin-top:14px}
+  .card-actions .btn{min-height:52px;font-size:16px}
+
+  .ring{--p:0;--c:var(--good);width:78px;height:78px;border-radius:50%;flex:none;position:relative;
+    background:conic-gradient(var(--c) calc(var(--p) * 1%), #e5eaef 0);display:grid;place-items:center}
+  .ring::before{content:"";position:absolute;inset:7px;border-radius:50%;background:#fff}
+  .ring > div{position:relative;text-align:center;line-height:1.1}
+  .ring b{display:block;font-size:24px;font-weight:900;color:var(--c)}
+  .ring small{font-size:11px;color:var(--sub);font-weight:600}
+  .ring.lg{width:120px;height:120px}
+  .ring.lg::before{inset:10px}
+  .ring.lg b{font-size:38px}
+  .ring.lg small{font-size:13px}
+
+  .grade{display:inline-block;font-size:13px;font-weight:800;padding:3px 10px;border-radius:20px;margin-bottom:4px}
+  .g-top{background:var(--top-soft);color:var(--top)}
+  .g-good{background:var(--good-soft);color:var(--good)}
+  .g-mid{background:var(--mid-soft);color:var(--mid)}
+  .g-low{background:var(--low-soft);color:var(--low)}
+
+  /* 상세 */
+  .hero{display:flex;gap:18px;align-items:center}
+  .hero h2{font-size:24px;margin:2px 0 0;letter-spacing:-.4px}
+  .bars .bar{margin:12px 0}
+  .bars .bar-head{display:flex;justify-content:space-between;font-size:15px;font-weight:600}
+  .bars .bar-head span:last-child{color:var(--sub);font-weight:500}
+  .track{height:10px;border-radius:6px;background:#e9eef2;overflow:hidden;margin-top:6px}
+  .track > i{display:block;height:100%;border-radius:6px;background:var(--brand-2)}
+  .track.neg > i{background:var(--low)}
+  .info{display:grid;grid-template-columns:auto 1fr;gap:10px 14px;font-size:16px}
+  .info dt{color:var(--sub);font-weight:600}
+  .info dd{margin:0;font-weight:600}
+  .info a{color:var(--brand);font-weight:800}
+  .review{border-top:1px solid var(--line);padding:14px 0}
+  .review:first-of-type{border-top:0;padding-top:4px}
+  .review-head{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+  .stars{color:#f5a623;font-size:17px;letter-spacing:1px}
+  .review p{margin-top:8px;white-space:pre-wrap}
+  .verified{font-size:12px;font-weight:800;color:var(--top);background:var(--top-soft);padding:3px 8px;border-radius:6px}
+  .notice{font-size:14px;color:var(--sub);background:#eef2f5;border-radius:12px;padding:12px 14px;margin-top:4px}
+  .alert{background:var(--low-soft);color:var(--low);border-radius:12px;padding:12px 14px;font-weight:700;margin-top:12px}
+
+  .actionbar{position:fixed;left:0;right:0;bottom:0;z-index:25;background:#fff;border-top:1px solid var(--line);
+    padding:10px 14px calc(10px + env(safe-area-inset-bottom));display:none}
+  .actionbar .inner{max-width:640px;margin:0 auto;display:flex;gap:10px}
+  .actionbar .btn{min-height:58px}
+  body.v-detail .actionbar{display:block}
+
+  /* 별점 입력 */
+  .rate{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:12px 14px;margin-top:10px}
+  .rate-label{font-weight:700}
+  .rate-hint{font-size:14px;color:var(--sub)}
+  .rate-stars{display:flex;gap:4px;margin-top:6px}
+  .rate-stars button{flex:1;height:52px;border:0;background:#f3f5f7;border-radius:12px;font-size:28px;color:#cfd6dd}
+  .rate-stars button.on{color:#f5a623;background:#fff6e3}
+
+  .upload{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:120px;
+    border:2px dashed #b8c6d1;border-radius:14px;background:#fff;text-align:center;padding:16px;cursor:pointer}
+  .upload .big{font-size:34px}
+  .upload b{font-size:17px}
+  .upload img{max-width:100%;max-height:220px;border-radius:10px}
+  .upload input{display:none}
+
+  /* 시작 화면 (3초) */
+  #splash{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;overflow:hidden;
+    color:#fff;text-align:center;transition:opacity .45s ease, transform .45s ease}
+  #splash.hide{opacity:0;transform:scale(1.06);pointer-events:none}
+  #splash .sp-bg{position:absolute;inset:0;background:radial-gradient(circle at 50% 35%,#16a37f 0%,#0b5d4b 55%,#073d32 100%)}
+  #splash .sp-content{position:relative;padding:24px}
+  .sp-thumb{font-size:120px;line-height:1;display:inline-block;filter:drop-shadow(0 10px 20px rgba(0,0,0,.25));
+    animation:thumbIn .7s cubic-bezier(.2,1.6,.4,1) both, thumbWiggle 1s ease-in-out .8s 2}
+  .sp-l1{font-size:40px;font-weight:900;letter-spacing:-1px;margin-top:18px;animation:up .5s ease .45s both}
+  .sp-l2{font-size:26px;font-weight:700;line-height:1.35;margin-top:10px;animation:up .5s ease .8s both}
+  .sp-l2 b{color:#ffe066}
+  .sp-brand{display:inline-block;margin-top:26px;padding:8px 18px;border-radius:30px;background:rgba(255,255,255,.16);
+    font-weight:800;font-size:17px;animation:up .5s ease 1.15s both}
+  .sp-bar{position:absolute;left:50%;bottom:calc(48px + env(safe-area-inset-bottom));transform:translateX(-50%);
+    width:140px;height:5px;border-radius:3px;background:rgba(255,255,255,.25);overflow:hidden}
+  .sp-bar i{display:block;height:100%;background:#fff;animation:bar 3s linear both}
+  .sp-spark{position:absolute;font-size:28px;opacity:0;animation:spark 1.6s ease-in-out infinite}
+  .s1{top:18%;left:14%;animation-delay:.6s}.s2{top:24%;right:14%;animation-delay:1s}
+  .s3{bottom:24%;left:18%;animation-delay:1.3s}.s4{bottom:20%;right:16%;animation-delay:.8s}
+  @keyframes thumbIn{0%{transform:scale(0) rotate(-40deg);opacity:0}100%{transform:scale(1) rotate(0);opacity:1}}
+  @keyframes thumbWiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-14deg) scale(1.08)}75%{transform:rotate(10deg)}}
+  @keyframes up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+  @keyframes bar{from{width:0}to{width:100%}}
+  @keyframes spark{0%,100%{opacity:0;transform:scale(.4)}50%{opacity:1;transform:scale(1)}}
+  @media (prefers-reduced-motion:reduce){#splash *{animation-duration:.01s!important;animation-iteration-count:1!important}}
+
+  /* 예산 슬라이더 */
+  .budget{background:#fff;border:1.5px solid var(--line);border-radius:14px;padding:14px 16px 10px;margin-top:10px}
+  .budget.off{opacity:.4}
+  .budget-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-weight:700;color:var(--sub)}
+  .budget-head b{font-size:22px;color:var(--brand);letter-spacing:-.3px}
+  .budget-ends{display:flex;justify-content:space-between;font-size:13px;color:var(--sub);margin-top:2px}
+  .budget input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:44px;background:transparent;margin:6px 0 0;touch-action:pan-y}
+  .budget input[type=range]::-webkit-slider-runnable-track{height:12px;border-radius:6px;
+    background:linear-gradient(to right,var(--brand-2) var(--fill,0%),#e3e9ee var(--fill,0%))}
+  .budget input[type=range]::-moz-range-track{height:12px;border-radius:6px;background:#e3e9ee}
+  .budget input[type=range]::-moz-range-progress{height:12px;border-radius:6px;background:var(--brand-2)}
+  .budget input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:34px;height:34px;margin-top:-11px;border-radius:50%;
+    background:#fff;border:4px solid var(--brand);box-shadow:0 2px 6px rgba(0,0,0,.2)}
+  .budget input[type=range]::-moz-range-thumb{width:28px;height:28px;border-radius:50%;background:#fff;border:4px solid var(--brand)}
+
+  /* 비교 */
+  .cmp-wrap{overflow-x:auto;background:#fff;border-radius:var(--r);box-shadow:0 1px 2px rgba(16,32,44,.06)}
+  table.cmp{border-collapse:collapse;width:100%;min-width:420px;font-size:15px}
+  table.cmp th,table.cmp td{padding:12px 10px;border-bottom:1px solid var(--line);text-align:center;vertical-align:middle}
+  table.cmp th{background:#f7f9fb;color:var(--sub);font-weight:700;text-align:left;white-space:nowrap;position:sticky;left:0}
+  table.cmp thead td{font-weight:800;font-size:16px}
+  table.cmp td.best{background:var(--top-soft);color:var(--top);font-weight:800}
+  .cmp-btn{min-height:48px;font-size:15px;margin-top:6px}
+
+  .empty{text-align:center;padding:40px 16px;color:var(--sub)}
+  .empty .big{font-size:44px;margin-bottom:8px}
+
+  .status{font-size:13px;font-weight:800;padding:4px 10px;border-radius:20px;background:#eef2f5}
+  .st-접수{background:var(--good-soft);color:var(--good)}
+  .st-연락완료,.st-진행중{background:var(--mid-soft);color:var(--mid)}
+  .st-계약완료{background:var(--top-soft);color:var(--top)}
+  .st-취소{background:#eceff2;color:#6b7680}
+
+  .done{text-align:center;padding:28px 10px}
+  .done .big{font-size:56px}
+  .done h2{font-size:22px;margin:8px 0}
+
+  #toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);
+    background:#13202c;color:#fff;padding:14px 18px;border-radius:14px;font-size:16px;font-weight:600;
+    max-width:calc(100% - 28px);opacity:0;pointer-events:none;transition:.2s;z-index:60;text-align:center}
+  #toast.show{opacity:1;transform:translateX(-50%)}
+  #toast.err{background:var(--low)}
+  #busy{position:fixed;inset:0;background:rgba(19,32,44,.35);display:none;align-items:center;justify-content:center;z-index:70}
+  #busy.show{display:flex}
+  #busy .box{background:#fff;border-radius:18px;padding:22px 26px;display:flex;align-items:center;gap:14px;font-weight:700;font-size:17px}
+  .spin{width:28px;height:28px;border:4px solid #dfe6ec;border-top-color:var(--brand);border-radius:50%;animation:spin .8s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .skeleton{height:150px;border-radius:var(--r);background:linear-gradient(90deg,#e8edf1,#f4f7f9,#e8edf1);background-size:200% 100%;
+    animation:sk 1.2s infinite;margin-bottom:12px}
+  @keyframes sk{to{background-position:-200% 0}}
+</style>
+</head>
+<body>
+
+<div id="splash" role="dialog" aria-label="굿중개사 시작 화면">
+  <div class="sp-bg"></div>
+  <div class="sp-content">
+    <div class="sp-thumb">👍</div>
+    <p class="sp-l1">사기 걱정 끝!!</p>
+    <p class="sp-l2">검증된 <b>굿 중개사</b>만<br>모았습니다!!</p>
+    <div class="sp-brand">👍 굿중개사</div>
+  </div>
+  <div class="sp-bar"><i></i></div>
+  <span class="sp-spark s1">✨</span><span class="sp-spark s2">⭐</span><span class="sp-spark s3">✨</span><span class="sp-spark s4">⭐</span>
+</div>
+
+<header class="topbar">
+  <button class="back" data-action="back" aria-label="뒤로">←</button>
+  <div class="logo" aria-hidden="true">👍</div>
+  <h1 id="title">굿중개사</h1>
+</header>
+
+<main>
+  <!-- ① 찾기 -->
+  <section id="view-list" class="view active">
+    <div class="search">
+      <span class="ico">🔍</span>
+      <input id="q" type="search" placeholder="이름, 사무소, 지역으로 검색" autocomplete="off">
+    </div>
+    <div class="chips sido" id="sido-chips"></div>
+    <button class="btn btn-ghost filter-toggle" data-action="toggle-filters">⚙️ 조건 설정 <span id="filter-count"></span></button>
+
+    <div id="filters" class="filters">
+      <div class="card" style="margin-top:10px">
+        <label class="f" style="margin-top:0">지역</label>
+        <select id="f-region"><option value="">전체 지역</option></select>
+        <label class="f">전문 분야</label>
+        <select id="f-spec"><option value="">전체 분야</option></select>
+        <label class="f">안심지수</label>
+        <div class="seg" id="f-min">
+          <button type="button" data-v="0" class="on">전체</button>
+          <button type="button" data-v="50">50+</button>
+          <button type="button" data-v="70">70+</button>
+          <button type="button" data-v="85">85+</button>
+        </div>
+        <label class="check"><input type="checkbox" id="f-insured"> 공제보험 가입 중개사만</label>
+        <label class="check"><input type="checkbox" id="f-clean"> 행정처분·허위매물 신고 없는 곳만</label>
+        <label class="check"><input type="checkbox" id="f-licensed"> 자격 검증 완료만</label>
+        <div class="row" style="margin-top:14px">
+          <button class="btn btn-ghost" data-action="reset-filters">초기화</button>
+          <button class="btn btn-primary" data-action="toggle-filters">적용</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="result-bar">
+      <b id="result-count">불러오는 중…</b>
+      <select id="sort" aria-label="정렬">
+        <option value="trust">안심지수순</option>
+        <option value="rating">평점순</option>
+        <option value="reviews">인증리뷰 많은순</option>
+        <option value="years">경력순</option>
+      </select>
+    </div>
+    <div id="list">
+      <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+    </div>
+    <p class="notice" style="margin-top:12px">ⓘ 안심지수는 운영자가 확인한 정보와 <b>계약서로 인증된 리뷰</b>만으로 계산한 참고 지표입니다. 계약 전에는 국가공간정보포털(브이월드) ‘부동산중개업 조회’에서 등록 여부를 꼭 직접 확인하세요.</p>
+  </section>
+
+  <!-- ② 상세 -->
+  <section id="view-detail" class="view"></section>
+
+  <!-- ③ 리뷰 쓰기 -->
+  <section id="view-review" class="view">
+    <div id="review-body"></div>
+  </section>
+
+  <!-- ④ 상담/지정 요청 -->
+  <section id="view-request" class="view">
+    <div id="request-body"></div>
+  </section>
+
+  <!-- ⑤ 비교 -->
+  <section id="view-compare" class="view"></section>
+
+  <!-- ⑥ 내 요청 -->
+  <section id="view-my" class="view">
+    <div class="card">
+      <h2>내 요청 확인</h2>
+      <p class="muted">요청할 때 입력한 이름과 휴대폰 번호를 넣어 주세요.</p>
+      <label class="f">이름</label>
+      <input id="my-name" type="text" autocomplete="name" placeholder="홍길동">
+      <label class="f">휴대폰 번호</label>
+      <input id="my-phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="010-1234-5678">
+      <button class="btn btn-primary" style="margin-top:16px" data-action="my-search">조회하기</button>
+    </div>
+    <div id="my-list"></div>
+  </section>
+</main>
+
+<div class="actionbar"><div class="inner">
+  <button class="btn btn-outline" data-action="go-review">✍️ 리뷰 쓰기</button>
+  <button class="btn btn-primary" data-action="go-request">📞 상담·지정 요청</button>
+</div></div>
+
+<nav class="tabbar">
+  <button data-tab="list" class="on"><span class="ico">🔍</span>찾기</button>
+  <button data-tab="compare"><span class="ico">⚖️</span>비교<span class="count" id="cmp-count"></span></button>
+  <button data-tab="my"><span class="ico">📋</span>내 요청</button>
+</nav>
+
+<div id="toast"></div>
+<div id="busy"><div class="box"><div class="spin"></div><span id="busy-text">처리 중…</span></div></div>
+
+<script>
+/* ───────── 상태 ───────── */
+const S = {
+  agents: [], regions: [], specialties: [], options: {},
+  f: { q: '', sido: '', region: '', spec: '', min: 0, insured: false, clean: false, licensed: false, sort: 'trust' },
+  compare: [],
+  detail: null,
+  view: 'list',
+  review: { ratings: {}, file: null },
+};
+const CATS = [
+  { key: 'accuracy', label: '설명 정확성', hint: '매물·계약 조건 설명이 실제와 같았나요?' },
+  { key: 'kindness', label: '응대 친절', hint: '연락이 잘 되고 질문에 성실히 답했나요?' },
+  { key: 'price', label: '가격 협상', hint: '내 입장에서 합리적으로 조율해 줬나요?' },
+  { key: 'aftercare', label: '사후 관리', hint: '잔금·입주 이후에도 잘 챙겨 줬나요?' },
+];
+const GRADE_COLOR = { top: 'var(--top)', good: 'var(--good)', mid: 'var(--mid)', low: 'var(--low)' };
+const TITLES = { list: '굿중개사', detail: '중개사 정보', review: '인증 리뷰 쓰기', request: '상담·지정 요청', compare: '중개사 비교', my: '내 요청' };
+const MAX_COMPARE = 3;
+const SIDO = ['서울', '부산', '대구', '인천', '광주', '대전', '울산', '세종', '경기', '강원', '충북', '충남', '전북', '전남', '경북', '경남', '제주'];
+const SIDO_ALIAS = { 충청북도: '충북', 충청남도: '충남', 전라북도: '전북', 전북특별자치도: '전북', 전라남도: '전남',
+  경상북도: '경북', 경상남도: '경남', 강원도: '강원', 강원특별자치도: '강원', 제주도: '제주', 제주특별자치도: '제주',
+  경기도: '경기', 세종특별자치시: '세종' };
+/** '서울특별시 강남구', '서울 강남구' → '서울' */
+function sidoOf(region) {
+  const t = String(region || '').trim().split(/\s+/)[0];
+  if (SIDO_ALIAS[t]) return SIDO_ALIAS[t];
+  return SIDO.find(s => t.startsWith(s)) || '';
+}
+
+/* ───────── 도우미 ───────── */
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const stars = n => '★'.repeat(Math.round(n)) + '☆'.repeat(5 - Math.round(n));
+const errMsg = e => String((e && e.message) || e || '알 수 없는 오류').replace(/^(Exception|Error):\s*/, '');
+
+function call(fn, ...args) {
+  return new Promise((resolve, reject) => {
+    google.script.run.withSuccessHandler(resolve).withFailureHandler(reject)[fn](...args);
+  });
+}
+let toastTimer;
+function toast(msg, isErr) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.className = 'show' + (isErr ? ' err' : '');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => (t.className = ''), isErr ? 4000 : 2600);
+}
+function busy(on, text) {
+  $('#busy-text').textContent = text || '처리 중…';
+  $('#busy').classList.toggle('show', !!on);
+}
+function ring(trust, big) {
+  return `<div class="ring${big ? ' lg' : ''}" style="--p:${trust.score};--c:${GRADE_COLOR[trust.grade.key]}">
+    <div><b>${trust.score}</b><small>안심지수</small></div></div>`;
+}
+function gradeChip(trust) { return `<span class="grade g-${trust.grade.key}">${esc(trust.grade.label)}</span>`; }
+function formatPhone(v) {
+  const d = v.replace(/\D/g, '').slice(0, 11);
+  if (d.length < 4) return d;
+  if (d.length < 8) return d.slice(0, 3) + '-' + d.slice(3);
+  return d.slice(0, 3) + '-' + d.slice(3, d.length - 4) + '-' + d.slice(-4);
+}
+function agentById(id) { return S.agents.find(a => a.id === id); }
+
+/* ───────── 화면 이동 (휴대폰 뒤로가기 지원) ───────── */
+function go(view, push = true) {
+  S.view = view;
+  $$('.view').forEach(v => v.classList.toggle('active', v.id === 'view-' + view));
+  const isSub = ['detail', 'review', 'request'].includes(view);
+  document.body.className = (isSub ? 'sub ' : '') + 'v-' + view;
+  $('#title').textContent = TITLES[view] || '굿중개사';
+  $$('.tabbar button').forEach(b => b.classList.toggle('on', b.dataset.tab === view));
+  window.scrollTo(0, 0);
+  if (push && window.google && google.script && google.script.history) {
+    google.script.history.push({ view, id: S.detail ? S.detail.agent.id : '' }, {}, view);
+  }
+}
+function back() {
+  if (S.view === 'review' || S.view === 'request') go('detail');
+  else go('list');
+}
+if (window.google && google.script && google.script.history) {
+  google.script.history.setChangeHandler(e => {
+    const st = e.state || {};
+    const v = st.view || 'list';
+    if ((v === 'detail' || v === 'review' || v === 'request') && !S.detail) return go('list', false);
+    if (v === 'compare') renderCompare();
+    go(v, false);
+  });
+}
+
+/* ───────── 초기 로딩 ───────── */
+function load() {
+  call('getAppData').then(d => {
+    S.agents = d.agents; S.regions = d.regions; S.specialties = d.specialties; S.options = d.options;
+    renderSido();
+    $('#f-spec').innerHTML = '<option value="">전체 분야</option>' + d.specialties.map(r => `<option>${esc(r)}</option>`).join('');
+    renderList();
+  }).catch(e => {
+    $('#result-count').textContent = '불러오기 실패';
+    $('#list').innerHTML = `<div class="card empty"><div class="big">⚠️</div><b>데이터를 불러오지 못했어요</b>
+      <p class="muted" style="margin-top:6px">${esc(errMsg(e))}</p>
+      <button class="btn btn-primary" style="margin-top:14px" onclick="location.reload()">다시 시도</button></div>`;
+  });
+}
+
+/* ───────── ① 목록 / 필터 ───────── */
+function filtered() {
+  const f = S.f, q = f.q.trim().toLowerCase();
+  let list = S.agents.filter(a => {
+    if (q && ![a.name, a.office, a.region, a.specialties.join(' ')].join(' ').toLowerCase().includes(q)) return false;
+    if (f.sido && sidoOf(a.region) !== f.sido) return false;
+    if (f.region && a.region !== f.region) return false;
+    if (f.spec && !a.specialties.includes(f.spec)) return false;
+    if (a.trust.score < f.min) return false;
+    if (f.insured && !a.insured) return false;
+    if (f.licensed && !a.licensed) return false;
+    if (f.clean && (a.sanctions > 0 || a.stats.reports > 0)) return false;
+    return true;
+  });
+  const by = {
+    trust: (x, y) => y.trust.score - x.trust.score,
+    rating: (x, y) => y.stats.avg - x.stats.avg || y.stats.verified - x.stats.verified,
+    reviews: (x, y) => y.stats.verified - x.stats.verified,
+    years: (x, y) => y.years - x.years,
+  }[f.sort];
+  return list.sort(by);
+}
+
+function agentCard(a) {
+  const inCmp = S.compare.includes(a.id);
+  const badges = [
+    a.licensed ? '<span class="badge ok">✔ 자격검증</span>' : '<span class="badge">자격 미확인</span>',
+    a.insured ? '<span class="badge ok">🛡 공제보험</span>' : '',
+    a.sanctions ? `<span class="badge bad">행정처분 ${a.sanctions}건</span>` : '',
+    a.stats.reports ? `<span class="badge bad">허위매물 신고 ${a.stats.reports}</span>` : '',
+  ].concat(a.specialties.slice(0, 3).map(s => `<span class="badge spec">${esc(s)}</span>`)).join('');
+  return `<article class="card">
+    <div class="agent-top" data-action="open" data-id="${esc(a.id)}">
+      ${ring(a.trust)}
+      <div class="agent-main">
+        ${gradeChip(a.trust)}
+        <h3>${esc(a.name)} <span class="office">${esc(a.office)}</span></h3>
+        <p class="meta">📍 ${esc(a.region || '지역 미등록')} · 경력 <b>${a.years}년</b></p>
+        <p class="meta">${a.stats.verified ? `<span class="stars">★</span> <b>${a.stats.avg}</b> · 인증 리뷰 ${a.stats.verified}건` : '아직 인증 리뷰가 없어요'}</p>
+        <div class="badges">${badges}</div>
+      </div>
+    </div>
+    <div class="card-actions">
+      <button class="btn btn-primary" data-action="open" data-id="${esc(a.id)}">자세히 보기</button>
+      <button class="btn btn-outline${inCmp ? ' on' : ''}" data-action="toggle-compare" data-id="${esc(a.id)}">${inCmp ? '✓ 비교 담음' : '+ 비교 담기'}</button>
+    </div>
+  </article>`;
+}
+
+function renderList() {
+  const list = filtered();
+  $('#result-count').textContent = `${S.f.sido || '전국'} 중개사 ${list.length}명`;
+  $('#list').innerHTML = list.length ? list.map(agentCard).join('') :
+    `<div class="card empty"><div class="big">🔎</div><b>조건에 맞는 중개사가 없어요</b><p>조건을 조금 넓혀 보세요.</p></div>`;
+  const n = ['region', 'spec'].filter(k => S.f[k]).length + (S.f.min ? 1 : 0) + ['insured', 'clean', 'licensed'].filter(k => S.f[k]).length;
+  $('#filter-count').textContent = n ? `(${n}개 적용)` : '';
+  updateCompareCount();
+}
+
+/** 전국 시·도 칩 + 선택 상자. 칩에는 등록된 중개사 수가 표시됩니다. */
+function renderSido() {
+  const count = {};
+  S.agents.forEach(a => { const s = sidoOf(a.region); count[s] = (count[s] || 0) + 1; });
+  $('#sido-chips').innerHTML = [['', '전국', S.agents.length]].concat(SIDO.map(s => [s, s, count[s] || 0]))
+    .map(([v, label, n]) => `<button type="button" class="chip${S.f.sido === v ? ' on' : ''}" data-sido="${v}">${label}<small>${n}</small></button>`).join('');
+  const subs = S.regions.filter(r => !S.f.sido || sidoOf(r) === S.f.sido);
+  $('#f-region').innerHTML = '<option value="">전체 지역</option>' + subs.map(r => `<option${S.f.region === r ? ' selected' : ''}>${esc(r)}</option>`).join('');
+}
+function setSido(v) {
+  S.f.sido = v; S.f.region = '';
+  renderSido(); renderList();
+  const on = $('#sido-chips .chip.on');
+  if (on) on.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' });
+}
+
+function bindFilters() {
+  $('#sido-chips').addEventListener('click', e => { const b = e.target.closest('[data-sido]'); if (b) setSido(b.dataset.sido); });
+  $('#f-min').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    $$('#f-min button').forEach(x => x.classList.toggle('on', x === b));
+    S.f.min = Number(b.dataset.v); renderList();
+  });
+  let t;
+  $('#q').addEventListener('input', e => { clearTimeout(t); t = setTimeout(() => { S.f.q = e.target.value; renderList(); }, 150); });
+  $('#f-region').addEventListener('change', e => { S.f.region = e.target.value; renderList(); });
+  $('#f-spec').addEventListener('change', e => { S.f.spec = e.target.value; renderList(); });
+  $('#sort').addEventListener('change', e => { S.f.sort = e.target.value; renderList(); });
+  ['insured', 'clean', 'licensed'].forEach(k => $('#f-' + k).addEventListener('change', e => { S.f[k] = e.target.checked; renderList(); }));
+}
+function resetFilters() {
+  Object.assign(S.f, { sido: '', region: '', spec: '', min: 0, insured: false, clean: false, licensed: false });
+  $('#f-spec').value = '';
+  $$('#f-min button').forEach(x => x.classList.toggle('on', x.dataset.v === '0'));
+  ['insured', 'clean', 'licensed'].forEach(k => ($('#f-' + k).checked = false));
+  renderSido(); renderList();
+}
+
+/* ───────── 비교 ───────── */
+function toggleCompare(id) {
+  const i = S.compare.indexOf(id);
+  if (i >= 0) S.compare.splice(i, 1);
+  else {
+    if (S.compare.length >= MAX_COMPARE) return toast(`비교는 최대 ${MAX_COMPARE}명까지 담을 수 있어요.`, true);
+    S.compare.push(id);
+    toast('비교함에 담았어요. 아래 ‘비교’ 탭에서 확인하세요.');
+  }
+  if (S.view === 'list') renderList();
+  if (S.view === 'compare') renderCompare();
+  if (S.view === 'detail') renderDetail();
+  updateCompareCount();
+}
+function updateCompareCount() {
+  const c = $('#cmp-count');
+  c.textContent = S.compare.length;
+  c.style.display = S.compare.length ? 'flex' : 'none';
+}
+function renderCompare() {
+  const list = S.compare.map(agentById).filter(Boolean);
+  const el = $('#view-compare');
+  if (!list.length) {
+    el.innerHTML = `<div class="card empty"><div class="big">⚖️</div><b>비교할 중개사를 담아 주세요</b>
+      <p style="margin-top:6px">찾기 화면에서 ‘+ 비교 담기’를 누르면 최대 ${MAX_COMPARE}명까지 나란히 비교할 수 있어요.</p>
+      <button class="btn btn-primary" style="margin-top:16px" data-tab="list">중개사 찾으러 가기</button></div>`;
+    return;
+  }
+  const rows = [
+    ['안심지수', a => a.trust.score, 'max', a => `<b>${a.trust.score}</b>`],
+    ['등급', null, null, a => gradeChip(a.trust)],
+    ['인증 평점', a => a.stats.avg, 'max', a => a.stats.verified ? '★ ' + a.stats.avg : '-'],
+    ['인증 리뷰', a => a.stats.verified, 'max', a => a.stats.verified + '건'],
+    ['경력', a => a.years, 'max', a => a.years + '년'],
+    ['자격 검증', null, null, a => a.licensed ? '✔' : '미확인'],
+    ['공제보험', null, null, a => a.insured ? '가입' : '미가입'],
+    ['행정처분', a => a.sanctions, 'min', a => a.sanctions + '건'],
+    ['허위매물 신고', a => a.stats.reports, 'min', a => a.stats.reports + '건'],
+    ['지역', null, null, a => esc(a.region)],
+    ['전문 분야', null, null, a => esc(a.specialties.join(', '))],
+  ];
+  const body = rows.map(([label, val, dir, show]) => {
+    let best = null;
+    if (val && list.length > 1) {
+      const vals = list.map(val);
+      const target = dir === 'max' ? Math.max(...vals) : Math.min(...vals);
+      if (!vals.every(v => v === target)) best = target;
+    }
+    return `<tr><th>${label}</th>${list.map(a => `<td class="${best !== null && val(a) === best ? 'best' : ''}">${show(a)}</td>`).join('')}</tr>`;
+  }).join('');
+  el.innerHTML = `
+    <p class="muted" style="margin:0 2px 10px">초록색 칸이 해당 항목에서 가장 좋은 값이에요. 표는 옆으로 밀어 볼 수 있어요.</p>
+    <div class="cmp-wrap"><table class="cmp">
+      <thead><tr><th></th>${list.map(a => `<td>${esc(a.name)}<div class="muted" style="font-size:13px;font-weight:600">${esc(a.office)}</div></td>`).join('')}</tr></thead>
+      <tbody>${body}
+        <tr><th>선택</th>${list.map(a => `<td>
+          <button class="btn btn-primary cmp-btn" data-action="open" data-id="${esc(a.id)}">보기</button>
+          <button class="btn btn-ghost cmp-btn" data-action="toggle-compare" data-id="${esc(a.id)}">빼기</button></td>`).join('')}</tr>
+      </tbody></table></div>`;
+}
+
+/* ───────── ② 상세 ───────── */
+function openAgent(id) {
+  const a = agentById(id);
+  if (!a) return;
+  S.detail = { agent: a, reviews: null };
+  renderDetail();
+  go('detail');
+  call('getAgentDetail', id).then(d => {
+    if (!S.detail || S.detail.agent.id !== id) return;
+    S.detail = d;
+    const i = S.agents.findIndex(x => x.id === id);
+    if (i >= 0) S.agents[i] = d.agent;
+    if (S.view === 'detail') renderDetail();
+  }).catch(e => toast(errMsg(e), true));
+}
+
+function renderDetail() {
+  const { agent: a, reviews } = S.detail;
+  const inCmp = S.compare.includes(a.id);
+  const bars = a.trust.items.map(it => {
+    const neg = it.got < 0;
+    const pct = neg ? 100 : (it.max ? Math.round(it.got / it.max * 100) : 0);
+    return `<div class="bar"><div class="bar-head"><span>${esc(it.label)}</span><span>${neg ? it.got : `${it.got} / ${it.max}`}점 · ${esc(it.note)}</span></div>
+      <div class="track${neg ? ' neg' : ''}"><i style="width:${pct}%"></i></div></div>`;
+  }).join('');
+  const catBars = a.stats.verified ? CATS.map(c => {
+    const v = a.stats.cats[c.key] || 0;
+    return `<div class="bar"><div class="bar-head"><span>${c.label}</span><span><b style="color:var(--ink)">${v}</b> / 5</span></div>
+      <div class="track"><i style="width:${v / 5 * 100}%;background:#f5a623"></i></div></div>`;
+  }).join('') : '';
+
+  let reviewHtml;
+  if (reviews === null) reviewHtml = '<div class="skeleton" style="height:90px"></div>';
+  else if (!reviews.length) reviewHtml = '<p class="muted">아직 인증된 리뷰가 없어요. 이 중개사와 계약하셨다면 첫 리뷰를 남겨 주세요.</p>';
+  else reviewHtml = reviews.map(r => `<div class="review">
+      <div class="review-head"><span><span class="stars">${stars(r.avg)}</span> <b>${r.avg}</b></span><span class="verified">✔ 계약 인증</span></div>
+      <div class="muted" style="font-size:14px;margin-top:2px">${esc(r.author)} · ${esc(r.dealType)} · ${esc(r.contractMonth)} 계약</div>
+      ${r.reported ? '<div class="badge bad" style="display:inline-block;margin-top:6px">⚠ 허위·미끼 매물 신고</div>' : ''}
+      <p>${esc(r.content)}</p></div>`).join('');
+
+  const tel = a.phone.replace(/[^\d]/g, '');
+  $('#view-detail').innerHTML = `
+    <div class="card">
+      <div class="hero">${ring(a.trust, true)}
+        <div>${gradeChip(a.trust)}<h2>${esc(a.name)}</h2><div class="muted" style="font-weight:600">${esc(a.office)}</div></div>
+      </div>
+      ${a.trust.grade.key === 'low' ? '<div class="alert">⚠ 주의 등급입니다. 계약 전 등록 여부, 등기부등본, 보증보험 가능 여부를 꼭 확인하세요.</div>' : ''}
+      <button class="btn btn-outline${inCmp ? ' on' : ''}" style="margin-top:14px" data-action="toggle-compare" data-id="${esc(a.id)}">${inCmp ? '✓ 비교함에 담김' : '+ 비교 담기'}</button>
+    </div>
+
+    <div class="card"><h2>왜 ${a.trust.score}점인가요?</h2><div class="bars">${bars}</div></div>
+
+    <div class="card"><h2>기본 정보</h2>
+      <dl class="info">
+        <dt>지역</dt><dd>${esc(a.region || '-')}</dd>
+        <dt>전문 분야</dt><dd>${esc(a.specialties.join(', ') || '-')}</dd>
+        <dt>경력</dt><dd>${a.years}년</dd>
+        <dt>등록번호</dt><dd>${esc(a.regNo || '-')}</dd>
+        <dt>연락처</dt><dd>${tel ? `<a href="tel:${esc(tel)}">${esc(a.phone)}</a>` : '-'}</dd>
+      </dl>
+      ${a.intro ? `<p style="margin-top:12px;white-space:pre-wrap">${esc(a.intro)}</p>` : ''}
+    </div>
+
+    <div class="card"><h2>인증 리뷰 ${a.stats.verified}건${a.stats.verified ? ` · ★ ${a.stats.avg}` : ''}</h2>
+      ${catBars ? `<div class="bars" style="margin-bottom:10px">${catBars}</div>` : ''}
+      ${a.stats.pending ? `<p class="notice" style="margin-bottom:10px">계약서 확인을 기다리는 리뷰 ${a.stats.pending}건은 인증 후 공개돼요.</p>` : ''}
+      ${reviewHtml}
+    </div>`;
+}
+
+/* ───────── ③ 인증 리뷰 쓰기 ───────── */
+function seg(name, items, value) {
+  return `<div class="seg" data-seg="${name}">${items.map(v => `<button type="button" data-v="${esc(v)}" class="${v === value ? 'on' : ''}">${esc(v)}</button>`).join('')}</div>`;
+}
+function segValue(root, name) {
+  const b = root.querySelector(`[data-seg="${name}"] button.on`);
+  return b ? b.dataset.v : '';
+}
+
+function renderReviewForm() {
+  const a = S.detail.agent;
+  S.review = { ratings: {}, file: null };
+  const today = new Date(Date.now() - new Date().getTimezoneOffset() * 60000).toISOString().slice(0, 10);
+  $('#review-body').innerHTML = `
+    <div class="card">
+      <div class="muted" style="font-weight:600">리뷰 대상</div>
+      <h2 style="margin:2px 0 0">${esc(a.name)} · ${esc(a.office)}</h2>
+      <p class="notice" style="margin-top:10px">🔒 실제 계약한 분만 쓸 수 있어요. 계약서 사진은 <b>운영자만</b> 확인하며, 공개되는 이름은 <b>김*수</b>처럼 가려집니다.</p>
+    </div>
+    <div class="card" id="review-form">
+      <label class="f" style="margin-top:0">이름</label>
+      <input name="name" type="text" autocomplete="name" placeholder="홍길동">
+      <label class="f">휴대폰 번호 <small>중복 작성 방지용, 공개 안 됨</small></label>
+      <input name="phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="010-1234-5678">
+      <label class="f">거래 유형</label>
+      ${seg('dealType', S.options.dealTypes || ['매매', '전세', '월세', '기타'], '')}
+      <label class="f">계약일</label>
+      <input name="contractDate" type="date" max="${today}">
+      <label class="f">계약서 사진 또는 PDF <small>필수</small></label>
+      <label class="upload" id="upload">
+        <input type="file" accept="image/*,application/pdf" id="file">
+        <span class="big">📄</span><b>눌러서 계약서 첨부</b>
+        <span class="hint">주민번호 등 민감한 정보는 가리고 찍어 주세요 (5MB 이하)</span>
+      </label>
+
+      <label class="f">평가</label>
+      ${CATS.map(c => `<div class="rate" data-rate="${c.key}">
+        <div class="rate-label">${c.label}</div><div class="rate-hint">${c.hint}</div>
+        <div class="rate-stars">${[1, 2, 3, 4, 5].map(n => `<button type="button" data-n="${n}" aria-label="${n}점">★</button>`).join('')}</div>
+      </div>`).join('')}
+
+      <label class="check warn"><input type="checkbox" name="reported"> 허위·미끼 매물이 있었어요 (광고와 실제가 달랐음)</label>
+
+      <label class="f">후기 <small>10자 이상</small></label>
+      <textarea name="content" maxlength="1000" placeholder="좋았던 점, 아쉬웠던 점을 사실 위주로 적어 주세요. 욕설·비방·개인정보는 반려될 수 있어요."></textarea>
+
+      <label class="check"><input type="checkbox" name="agree"> 리뷰 인증을 위한 개인정보(이름, 연락처, 계약서) 수집·이용에 동의합니다.</label>
+      <button class="btn btn-primary" style="margin-top:18px" data-action="submit-review">리뷰 제출하기</button>
+    </div>`;
+
+  const root = $('#review-form');
+  root.querySelector('[name=phone]').addEventListener('input', e => (e.target.value = formatPhone(e.target.value)));
+  root.querySelectorAll('[data-rate]').forEach(r => r.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    const n = Number(b.dataset.n);
+    S.review.ratings[r.dataset.rate] = n;
+    r.querySelectorAll('button').forEach(x => x.classList.toggle('on', Number(x.dataset.n) <= n));
+  }));
+  $('#file').addEventListener('change', async e => {
+    const f = e.target.files[0]; if (!f) return;
+    try {
+      busy(true, '파일 준비 중…');
+      S.review.file = await prepareFile(f);
+      const up = $('#upload');
+      up.querySelectorAll(':scope > :not(input)').forEach(n => n.remove());
+      up.insertAdjacentHTML('beforeend', S.review.file.data.startsWith('data:image')
+        ? `<img src="${S.review.file.data}" alt="첨부 미리보기"><span class="hint">다시 누르면 바꿀 수 있어요</span>`
+        : `<span class="big">📑</span><b>${esc(f.name)}</b><span class="hint">다시 누르면 바꿀 수 있어요</span>`);
+    } catch (err) { S.review.file = null; toast(errMsg(err), true); }
+    finally { busy(false); }
+  });
+}
+
+/** 사진은 휴대폰에서 미리 줄여서 보내 업로드를 빠르게 합니다. */
+function prepareFile(file) {
+  return new Promise((resolve, reject) => {
+    if (file.type === 'application/pdf') {
+      if (file.size > 5 * 1024 * 1024) return reject(new Error('PDF는 5MB 이하만 올릴 수 있어요.'));
+      const fr = new FileReader();
+      fr.onload = () => resolve({ name: file.name, data: fr.result });
+      fr.onerror = () => reject(new Error('파일을 읽지 못했어요.'));
+      return fr.readAsDataURL(file);
+    }
+    if (!file.type.startsWith('image/')) return reject(new Error('사진 또는 PDF만 올릴 수 있어요.'));
+    const url = URL.createObjectURL(file);
+    const img = new Image();
+    img.onload = () => {
+      const max = 1600, r = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas');
+      c.width = Math.round(img.width * r); c.height = Math.round(img.height * r);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      URL.revokeObjectURL(url);
+      resolve({ name: file.name, data: c.toDataURL('image/jpeg', 0.82) });
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('이 사진 형식은 읽을 수 없어요. JPG나 PNG로 다시 시도해 주세요.')); };
+    img.src = url;
+  });
+}
+
+function submitReview(btn) {
+  const root = $('#review-form');
+  const v = n => root.querySelector(`[name=${n}]`);
+  const form = {
+    agentId: S.detail.agent.id,
+    name: v('name').value, phone: v('phone').value,
+    dealType: segValue(root, 'dealType'), contractDate: v('contractDate').value,
+    ratings: S.review.ratings, reported: v('reported').checked,
+    content: v('content').value, agree: v('agree').checked, file: S.review.file,
+  };
+  // 빠른 확인 (서버에서도 다시 검사합니다)
+  const miss = !form.name.trim() ? '이름을 입력해 주세요.' :
+    form.phone.replace(/\D/g, '').length < 10 ? '휴대폰 번호를 입력해 주세요.' :
+    !form.dealType ? '거래 유형을 선택해 주세요.' :
+    !form.contractDate ? '계약일을 입력해 주세요.' :
+    !form.file ? '계약서 사진을 첨부해 주세요.' :
+    CATS.some(c => !form.ratings[c.key]) ? '모든 항목에 별점을 눌러 주세요.' :
+    form.content.trim().length < 10 ? '후기를 10자 이상 써 주세요.' :
+    !form.agree ? '개인정보 수집·이용에 동의해 주세요.' : '';
+  if (miss) return toast(miss, true);
+
+  btn.disabled = true; busy(true, '리뷰 보내는 중…');
+  call('submitReview', form).then(res => {
+    $('#review-body').innerHTML = `<div class="card done"><div class="big">✅</div><h2>리뷰가 접수됐어요</h2>
+      <p class="muted">${esc(res.message)}</p>
+      <button class="btn btn-primary" style="margin-top:18px" data-action="back">중개사 정보로 돌아가기</button></div>`;
+    S.detail.agent.stats.pending++;
+    window.scrollTo(0, 0);
+  }).catch(e => toast(errMsg(e), true))
+    .finally(() => { btn.disabled = false; busy(false); });
+}
+
+/* ───────── ④ 안심 상담 / 지정 요청 ───────── */
+function renderRequestForm() {
+  const a = S.detail.agent, o = S.options;
+  $('#request-body').innerHTML = `
+    <div class="card">
+      <div class="muted" style="font-weight:600">요청 대상</div>
+      <h2 style="margin:2px 0 0">${esc(a.name)} · ${esc(a.office)}</h2>
+      <div style="margin-top:8px">${gradeChip(a.trust)} <span class="muted">안심지수 ${a.trust.score}점</span></div>
+    </div>
+    <div class="card" id="request-form">
+      <label class="f" style="margin-top:0">무엇을 원하세요?</label>
+      <div class="seg big" data-seg="type">
+        <button type="button" data-v="상담" class="on">💬 안심 상담<small>먼저 이야기해 볼게요</small></button>
+        <button type="button" data-v="지정">🤝 중개 지정<small>이 분께 맡길게요</small></button>
+      </div>
+      <label class="f">이름</label>
+      <input name="name" type="text" autocomplete="name" placeholder="홍길동">
+      <label class="f">휴대폰 번호</label>
+      <input name="phone" type="tel" inputmode="numeric" autocomplete="tel" placeholder="010-1234-5678">
+      <label class="f">거래 유형</label>
+      ${seg('dealType', o.dealTypes || [], '')}
+      <label class="f">매물 유형</label>
+      <select name="propertyType"><option value="">선택해 주세요</option>${(o.propertyTypes || []).map(p => `<option>${esc(p)}</option>`).join('')}</select>
+      <label class="f">희망 지역 <small>선택</small></label>
+      <input name="region" type="text" placeholder="예: 마포구 합정동" value="${esc(a.region)}">
+      <label class="f">예산 <small>바를 밀어서 최대 금액을 정하세요</small></label>
+      <div id="budget-box"></div>
+      <label class="f">연락 가능 시간</label>
+      ${seg('contactTime', o.contactTimes || [], (o.contactTimes || [])[0])}
+      <label class="f">남길 말 <small>선택</small></label>
+      <textarea name="message" maxlength="500" placeholder="원하는 조건, 입주 시기 등을 적어 주세요."></textarea>
+      <label class="check"><input type="checkbox" name="agree"> 상담 연결을 위한 개인정보(이름, 연락처) 수집·이용 및 중개사 전달에 동의합니다.</label>
+      <button class="btn btn-primary" style="margin-top:18px" data-action="submit-request">요청 보내기</button>
+    </div>`;
+  $('#request-form [name=phone]').addEventListener('input', e => (e.target.value = formatPhone(e.target.value)));
+  $('#request-form [data-seg="dealType"]').addEventListener('click', e => {
+    const b = e.target.closest('button'); if (b) renderBudget(b.dataset.v);
+  });
+  renderBudget('');
+}
+
+/* ───────── 예산 슬라이더 (단위: 만원) ───────── */
+const BUDGET_SCALES = {
+  매매: { label: '매매가', steps: [5000, 10000, 15000, 20000, 25000, 30000, 40000, 50000, 60000, 70000, 80000, 100000, 120000, 150000, 200000, 300000], def: 6 },
+  전세: { label: '전세 보증금', steps: [3000, 5000, 7000, 10000, 15000, 20000, 25000, 30000, 40000, 50000, 60000, 80000, 100000, 150000], def: 5 },
+  보증금: { label: '보증금', steps: [100, 300, 500, 1000, 2000, 3000, 5000, 10000, 20000, 30000], def: 3 },
+  월세: { label: '월세', steps: [20, 30, 40, 50, 60, 70, 80, 90, 100, 120, 150, 200, 300], def: 5 },
+};
+function won(man) {
+  const eok = Math.floor(man / 10000), rest = man % 10000;
+  if (!eok) return rest.toLocaleString('ko-KR') + '만';
+  return eok + '억' + (rest ? ' ' + rest.toLocaleString('ko-KR') + '만' : '');
+}
+function sliderHtml(key) {
+  const sc = BUDGET_SCALES[key], max = sc.steps.length - 1;
+  return `<div class="budget" data-scale="${key}">
+    <div class="budget-head"><span>${sc.label}</span><b class="budget-val"></b></div>
+    <input type="range" min="0" max="${max}" step="1" value="${sc.def}" aria-label="${sc.label} 최대 금액">
+    <div class="budget-ends"><span>${won(sc.steps[0])}</span><span>${won(sc.steps[max])} 이상</span></div>
+  </div>`;
+}
+function renderBudget(dealType) {
+  const box = $('#budget-box');
+  if (!box) return;
+  const keys = dealType === '월세' ? ['보증금', '월세'] : dealType === '전세' ? ['전세'] : dealType === '기타' ? ['보증금'] : ['매매'];
+  box.innerHTML = keys.map(sliderHtml).join('') +
+    `<label class="check" style="margin-top:10px"><input type="checkbox" id="budget-any"> 예산은 상담하면서 정할게요</label>` +
+    (dealType ? '' : '<p class="hint">거래 유형을 고르면 금액 범위가 그에 맞게 바뀌어요.</p>');
+  box.querySelectorAll('.budget').forEach(b => {
+    const input = b.querySelector('input');
+    const update = () => {
+      const sc = BUDGET_SCALES[b.dataset.scale], i = Number(input.value), max = sc.steps.length - 1;
+      b.querySelector('.budget-val').textContent = won(sc.steps[i]) + (i === max ? ' 이상' : ' 이하');
+      input.style.setProperty('--fill', (i / max * 100) + '%');
+    };
+    input.addEventListener('input', update);
+    update();
+  });
+  $('#budget-any').addEventListener('change', e => box.querySelectorAll('.budget').forEach(b => {
+    b.classList.toggle('off', e.target.checked);
+    b.querySelector('input').disabled = e.target.checked;
+  }));
+}
+function budgetText() {
+  const box = $('#budget-box');
+  if (!box || $('#budget-any').checked) return '협의';
+  return Array.from(box.querySelectorAll('.budget'))
+    .map(b => BUDGET_SCALES[b.dataset.scale].label + ' ' + b.querySelector('.budget-val').textContent).join(' · ');
+}
+
+function submitRequest(btn) {
+  const root = $('#request-form');
+  const v = n => root.querySelector(`[name=${n}]`);
+  const form = {
+    agentId: S.detail.agent.id, type: segValue(root, 'type'),
+    name: v('name').value, phone: v('phone').value,
+    dealType: segValue(root, 'dealType'), propertyType: v('propertyType').value,
+    region: v('region').value, budget: budgetText(),
+    contactTime: segValue(root, 'contactTime'), message: v('message').value, agree: v('agree').checked,
+  };
+  const miss = !form.name.trim() ? '이름을 입력해 주세요.' :
+    form.phone.replace(/\D/g, '').length < 10 ? '휴대폰 번호를 입력해 주세요.' :
+    !form.dealType ? '거래 유형을 선택해 주세요.' :
+    !form.propertyType ? '매물 유형을 선택해 주세요.' :
+    !form.agree ? '개인정보 수집·이용에 동의해 주세요.' : '';
+  if (miss) return toast(miss, true);
+
+  btn.disabled = true; busy(true, '요청 보내는 중…');
+  call('submitRequest', form).then(res => {
+    $('#my-name').value = form.name; $('#my-phone').value = formatPhone(form.phone);
+    $('#request-body').innerHTML = `<div class="card done"><div class="big">📨</div>
+      <h2>${form.type === '지정' ? '중개 지정' : '안심 상담'} 요청 완료</h2>
+      <p class="muted">요청번호 <b>${esc(res.requestId)}</b><br>선택하신 시간에 연락드릴게요.</p>
+      <button class="btn btn-primary" style="margin-top:18px" data-action="see-my">내 요청 확인하기</button>
+      <button class="btn btn-ghost" style="margin-top:10px" data-tab="list">다른 중개사 보기</button></div>`;
+    window.scrollTo(0, 0);
+  }).catch(e => toast(errMsg(e), true))
+    .finally(() => { btn.disabled = false; busy(false); });
+}
+
+/* ───────── ⑥ 내 요청 ───────── */
+function searchMy() {
+  const name = $('#my-name').value, phone = $('#my-phone').value;
+  if (!name.trim() || phone.replace(/\D/g, '').length < 10) return toast('이름과 휴대폰 번호를 입력해 주세요.', true);
+  busy(true, '조회 중…');
+  call('getMyRequests', name, phone).then(list => {
+    $('#my-list').innerHTML = list.length ? list.map(r => `<div class="card">
+        <div class="review-head"><b>${esc(r.agentName)}</b><span class="status st-${esc(r.status)}">${esc(r.status)}</span></div>
+        <div class="muted" style="margin-top:4px">${r.type === '지정' ? '🤝 중개 지정' : '💬 안심 상담'} · ${esc(r.dealType)} · ${esc(r.propertyType)}</div>
+        <div class="muted" style="font-size:14px">${esc(r.createdAt)} · ${esc(r.id)}</div></div>`).join('')
+      : `<div class="card empty"><div class="big">📭</div><b>요청 내역이 없어요</b><p>이름과 번호를 다시 확인해 주세요.</p></div>`;
+  }).catch(e => toast(errMsg(e), true)).finally(() => busy(false));
+}
+
+/* ───────── 클릭 이벤트 (한곳에서 처리) ───────── */
+document.addEventListener('click', e => {
+  const tab = e.target.closest('[data-tab]');
+  if (tab) {
+    const v = tab.dataset.tab;
+    if (v === 'compare') renderCompare();
+    if (v === 'list') renderList();
+    return go(v);
+  }
+  const segBtn = e.target.closest('[data-seg] button');
+  if (segBtn) segBtn.parentElement.querySelectorAll('button').forEach(b => b.classList.toggle('on', b === segBtn));
+
+  const el = e.target.closest('[data-action]');
+  if (!el) return;
+  const id = el.dataset.id;
+  switch (el.dataset.action) {
+    case 'open': openAgent(id); break;
+    case 'toggle-compare': toggleCompare(id); break;
+    case 'toggle-filters': $('#filters').classList.toggle('open'); break;
+    case 'reset-filters': resetFilters(); break;
+    case 'back': back(); break;
+    case 'go-review': renderReviewForm(); go('review'); break;
+    case 'go-request': renderRequestForm(); go('request'); break;
+    case 'submit-review': submitReview(el); break;
+    case 'submit-request': submitRequest(el); break;
+    case 'my-search': searchMy(); break;
+    case 'see-my': go('my'); searchMy(); break;
+  }
+});
+$('#my-phone').addEventListener('input', e => (e.target.value = formatPhone(e.target.value)));
+
+/* 시작 화면: 3초 보여 준 뒤 사라짐 (그동안 데이터는 뒤에서 미리 불러옴) */
+(function splash() {
+  const el = $('#splash');
+  const close = () => { el.classList.add('hide'); setTimeout(() => el.remove(), 500); };
+  setTimeout(close, 3000);
+})();
+
+bindFilters();
+load();
+</script>
+</body>
+</html>
